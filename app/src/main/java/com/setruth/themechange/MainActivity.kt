@@ -1,18 +1,14 @@
 package com.setruth.themechange
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
 import android.os.Bundle
 import android.util.Log
-import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -36,34 +32,42 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.setruth.themechange.components.MaskAnimModel
 import com.setruth.themechange.components.MaskSurface
-import com.setruth.themechange.components.MaskView
 import com.setruth.themechange.model.RouteConfig
-import com.setruth.themechange.model.ACTIVE_MASK_TAG
+import com.setruth.themechange.model.DARK_SWITCH_ACTIVE
 import com.setruth.themechange.model.MASK_CLICK_X
 import com.setruth.themechange.model.MASK_CLICK_Y
+import com.setruth.themechange.model.MaskAnimModel
+import com.setruth.themechange.model.THEME_SWITCH_ACTIVE
 import com.setruth.themechange.ui.screen.MaskSurfaceScreen
 import com.setruth.themechange.ui.screen.MaskViewScreen
+import com.setruth.themechange.ui.theme.LightColorScheme1
+import com.setruth.themechange.ui.theme.LightColorScheme2
 import com.setruth.themechange.ui.theme.MaskAnimTheme
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val context = LocalContext.current
             val scope = rememberCoroutineScope()
-            var isDark =isSystemInDarkTheme()
             var isDarkTheme by remember {
-                mutableStateOf(isDark)
+                mutableStateOf(false)
             }
-            val activeMaskTag by context.dataStore.data
+            val darkSwitchActive by context.dataStore.data
                 .map { preferences ->
-                    preferences[ACTIVE_MASK_TAG] ?: false
+                    preferences[DARK_SWITCH_ACTIVE] ?: false
+                }
+                .collectAsState(initial = false)
+            val themeSwitchActive by context.dataStore.data
+                .map { preferences ->
+                    preferences[THEME_SWITCH_ACTIVE] ?: false
                 }
                 .collectAsState(initial = false)
             val maskClickX by context.dataStore.data
@@ -72,33 +76,64 @@ class MainActivity : ComponentActivity() {
                 }
                 .collectAsState(initial = 0f)
             val maskClickY by context.dataStore.data
+                .catch { Log.e("TAG", "onCreate:${it.stackTrace} ", ) }
                 .map { preferences ->
                     preferences[MASK_CLICK_Y] ?: 0f
                 }
                 .collectAsState(initial = 0f)
-            MaskAnimTheme(isDarkTheme) {
+            var theme by remember {
+               mutableStateOf(LightColorScheme1)
+            }
+
+
+            //mask use to?
+            var maskAnimWay by remember{
+                mutableStateOf(MaskAnimWay.DARK_SWITCH)
+            }
+            MaskAnimTheme(isDarkTheme, customTheme = theme) {
                 MaskSurface(
                     maskComplete = {
-                        scope.launch {
-                            context.dataStore.edit {
-                                it[ACTIVE_MASK_TAG] = false
+                        when (maskAnimWay) {
+                            MaskAnimWay.DARK_SWITCH ->  isDarkTheme = !isDarkTheme
+                            MaskAnimWay.THEME_SWITCH -> {
+                                theme= if (theme== LightColorScheme1) LightColorScheme2 else LightColorScheme1
                             }
-//                            isDarkTheme = !isDarkTheme
                         }
                     },
-                    animTime = tween(700)
+                    animTime =800,
+                    animFinish ={
+                        when (maskAnimWay) {
+                            MaskAnimWay.DARK_SWITCH ->  scope.launch {
+                                context.dataStore.edit {
+                                    it[DARK_SWITCH_ACTIVE] = false
+                                }
+                            }
+                            MaskAnimWay.THEME_SWITCH ->scope.launch {
+                                context.dataStore.edit {
+                                    it[THEME_SWITCH_ACTIVE] = false
+                                }
+                            }
+                        }
+                    }
                 ) { maskActiveEvent ->
-                    LaunchedEffect(activeMaskTag) {
-                        if (!activeMaskTag) return@LaunchedEffect
-                        Log.e("TAG", "onCreate:$isDark ", )
-//                        if (isDarkTheme)
-//                            maskActiveEvent(MaskAnimModel.SHRINK, maskClickX, maskClickY)
-//                        else
+                    LaunchedEffect(darkSwitchActive) {
+                        if (!darkSwitchActive) return@LaunchedEffect
+                        maskAnimWay=MaskAnimWay.DARK_SWITCH
+                        if (isDarkTheme)
+                            maskActiveEvent(MaskAnimModel.SHRINK, maskClickX, maskClickY)
+                        else
                             maskActiveEvent(MaskAnimModel.EXPEND, maskClickX, maskClickY)
+                    }
+                    LaunchedEffect(themeSwitchActive){
+                        if (!themeSwitchActive) return@LaunchedEffect
+                        Log.e("TAG", "onCreate:主题切换 ", )
+                        maskAnimWay=MaskAnimWay.THEME_SWITCH
+                        maskActiveEvent(MaskAnimModel.EXPEND, maskClickX, maskClickY)
                     }
                     MainView()
                 }
             }
+
         }
     }
 
@@ -127,7 +162,9 @@ fun MainView() {
         }
     }
     Scaffold(bottomBar = {
-        NavigationBar {
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.background
+        ) {
             navInfoList.forEachIndexed { index, info ->
                 NavigationBarItem(
                     icon = {
@@ -164,3 +201,7 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         launchSingleTop = true
         restoreState = true
     }
+enum class MaskAnimWay{
+    DARK_SWITCH,
+    THEME_SWITCH
+}

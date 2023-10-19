@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,12 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.edit
-import com.setruth.themechange.dataStore
-import com.setruth.themechange.model.ACTIVE_MASK_TAG
-import com.setruth.themechange.model.MASK_CLICK_X
-import com.setruth.themechange.model.MASK_CLICK_Y
-import kotlinx.coroutines.launch
 
 @Composable
 fun MaskViewScreen() {
@@ -60,6 +54,7 @@ fun MaskViewScreen() {
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Button(
+                    enabled = false,
                     onClick = {
 
                     }
@@ -80,7 +75,10 @@ fun MaskViewScreen() {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 10.dp)
+                            .padding(bottom = 10.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        )
                     ) {
                         Row(
                             Modifier
