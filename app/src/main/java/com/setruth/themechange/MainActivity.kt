@@ -6,10 +6,12 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -55,8 +57,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val scope = rememberCoroutineScope()
+            var isDark =isSystemInDarkTheme()
             var isDarkTheme by remember {
-                mutableStateOf(false)
+                mutableStateOf(isDark)
             }
             val activeMaskTag by context.dataStore.data
                 .map { preferences ->
@@ -80,16 +83,17 @@ class MainActivity : ComponentActivity() {
                             context.dataStore.edit {
                                 it[ACTIVE_MASK_TAG] = false
                             }
-                            isDarkTheme = !isDarkTheme
+//                            isDarkTheme = !isDarkTheme
                         }
                     },
                     animTime = tween(700)
                 ) { maskActiveEvent ->
                     LaunchedEffect(activeMaskTag) {
                         if (!activeMaskTag) return@LaunchedEffect
-                        if (isDarkTheme)
-                            maskActiveEvent(MaskAnimModel.SHRINK, maskClickX, maskClickY)
-                        else
+                        Log.e("TAG", "onCreate:$isDark ", )
+//                        if (isDarkTheme)
+//                            maskActiveEvent(MaskAnimModel.SHRINK, maskClickX, maskClickY)
+//                        else
                             maskActiveEvent(MaskAnimModel.EXPEND, maskClickX, maskClickY)
                     }
                     MainView()
@@ -98,25 +102,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun Bitmap.showScreenshot(
-        isDark: Boolean,
-        clickX: Float,
-        clickY: Float,
-        viewGroup: ViewGroup
-    ) {
-        val maskView = MaskView(
-            isDark = isDark,
-            Paint().apply {
-                isAntiAlias = true
-                xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-            },
-            this@MainActivity, clickX, clickY, this
-        )
-        viewGroup.addView(maskView)
-        maskView.startAnimation {
-            viewGroup.removeView(maskView)
-        }
-    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

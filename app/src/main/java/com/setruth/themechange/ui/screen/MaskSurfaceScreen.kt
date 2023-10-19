@@ -10,8 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,7 +65,7 @@ fun MaskSurfaceScreen() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "动画切换主题模式",
+                    text = "compose",
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Button(
@@ -73,7 +77,7 @@ fun MaskSurfaceScreen() {
                         }
                     }
                 ) {
-                    val tipContent = if (isDark) "切换为白天" else "切换为夜晚"
+                    val tipContent = if (isDark) "ToLightTheme" else "ToDarkTheme"
                     Text(
                         text = tipContent,
                         modifier = Modifier
@@ -107,6 +111,7 @@ fun MaskSurfaceScreen() {
                                 fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold
                             )
+                            Icon(imageVector = Icons.Filled.Star, tint = MaterialTheme.colorScheme.primary, contentDescription = "FavoriteBorder")
                         }
                     }
                 }
