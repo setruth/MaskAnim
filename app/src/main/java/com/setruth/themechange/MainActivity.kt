@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.core.tween
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -32,7 +31,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.setruth.themechange.components.MaskSurface
+import com.setruth.themechange.components.MaskBox
 import com.setruth.themechange.model.RouteConfig
 import com.setruth.themechange.model.DARK_SWITCH_ACTIVE
 import com.setruth.themechange.model.MASK_CLICK_X
@@ -91,7 +90,7 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(MaskAnimWay.DARK_SWITCH)
             }
             MaskAnimTheme(isDarkTheme, customTheme = theme) {
-                MaskSurface(
+                MaskBox(
                     maskComplete = {
                         when (maskAnimWay) {
                             MaskAnimWay.DARK_SWITCH ->  isDarkTheme = !isDarkTheme

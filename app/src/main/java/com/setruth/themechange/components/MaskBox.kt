@@ -36,7 +36,7 @@ typealias MaskAnimActive = (MaskAnimModel, Float, Float) -> Unit
 
 @SuppressLint("Recycle")
 @Composable
-fun MaskSurface(
+fun MaskBox(
     animTime: Long = 1000,
     maskComplete: (MaskAnimModel) -> Unit,
     animFinish: () -> Unit,
