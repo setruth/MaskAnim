@@ -54,7 +54,9 @@ MaskBox(
 }
 ```
 
+#### 效果图
 
+<img src="./img/compose.gif" alt="效果图" style="zoom:25%;" />
 
 ### 原生XML
 
