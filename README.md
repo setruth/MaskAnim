@@ -1,5 +1,20 @@
-# Telegram的夜间白天切换效果组件
+- [Telegram的夜间白天切换效果组件](#telegram的夜间白天切换效果组件)
+  - [项目环境](#项目环境)
+  - [实现原理](#实现原理)
+    - [思路](#思路)
+    - [步骤](#步骤)
+  - [兼容开发模式](#兼容开发模式)
+    - [说明](#说明)
+    - [Compose](#compose)
+      - [文件地址](#文件地址)
+      - [使用方式](#使用方式)
+    - [原生XML](#原生xml)
+      - [文件地址](#文件地址-1)
+      - [使用方式](#使用方式-1)
+    - [效果图](#效果图)
 
+
+# Telegram的夜间白天切换效果组件
 
 
 ## 项目环境
@@ -66,9 +81,9 @@ MaskBox(
 
 #### 文件地址
 
-[组件源文件地址索引](https://github.com/setruth/MaskAnim/blob/master/app/src/main/java/com/setruth/themechange/components/MaskView.kt)
-
-[使用文件地址索引](https://github.com/setruth/MaskAnim/blob/master/app/src/main/java/com/setruth/themechange/ui/screen/MaskViewScreen.kt)
+>[组件源文件地址索引](https://github.com/setruth/MaskAnim/blob/master/app/src/main/java/com/setruth/themechange/components/MaskView.kt)
+>
+>[使用文件地址索引](https://github.com/setruth/MaskAnim/blob/master/app/src/main/java/com/setruth/themechange/ui/screen/MaskViewScreen.kt)
 
 #### 使用方式
 
