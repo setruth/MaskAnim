@@ -1,6 +1,5 @@
 package com.setruth.themechange.components
 
-import android.animation.Animator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity

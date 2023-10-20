@@ -1,6 +1,5 @@
 package com.setruth.themechange.components
 
-import android.animation.Animator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -34,20 +33,6 @@ import kotlin.math.roundToInt
  * 动画模式，点击的x坐标，点击的y坐标
  */
 typealias MaskAnimActive = (MaskAnimModel, Float, Float) -> Unit
-private inline fun Animator.valueAnimatorListener(
-    crossinline onStart: (p0: Animator)->Unit = {},
-    crossinline onEnd: (p0: Animator)->Unit = {},
-    crossinline onCancel: (p0: Animator)->Unit = {},
-    crossinline onRepeat: (p0: Animator)->Unit = {},
-) {
-    val animationListener = object : Animator.AnimatorListener {
-        override fun onAnimationStart(p0: Animator) = onStart(p0)
-        override fun onAnimationEnd(p0: Animator) = onEnd(p0)
-        override fun onAnimationCancel(p0: Animator) = onCancel(p0)
-        override fun onAnimationRepeat(p0: Animator) = onRepeat(p0)
-    }
-    addListener(animationListener)
-}
 @SuppressLint("Recycle")
 @Composable
 fun MaskBox(
