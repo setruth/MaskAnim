@@ -1,4 +1,5 @@
 - [Telegram的夜间白天切换效果组件](#telegram的夜间白天切换效果组件)
+  - [特别致谢](#特别致谢)
   - [项目环境](#项目环境)
   - [实现原理](#实现原理)
     - [思路](#思路)
@@ -13,8 +14,11 @@
       - [使用方式](#使用方式-1)
     - [效果图](#效果图)
 
-
 # Telegram的夜间白天切换效果组件
+
+## 特别致谢
+
+> SakurajimaMaii大佬的技术支持 [SakurajimaMaii](https://github.com/SakurajimaMaii)
 
 
 ## 项目环境
