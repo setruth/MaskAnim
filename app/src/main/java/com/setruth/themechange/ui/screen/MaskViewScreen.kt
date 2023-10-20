@@ -1,7 +1,6 @@
 package com.setruth.themechange.ui.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,19 +18,46 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.edit
+import com.setruth.themechange.components.activeMaskView
+import com.setruth.themechange.dataStore
+import com.setruth.themechange.model.IS_DARK_MODEL
+import com.setruth.themechange.model.MaskAnimModel
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 @Composable
 fun MaskViewScreen() {
-    val isDark = isSystemInDarkTheme()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var buttonActive by remember {
+        mutableStateOf(true)
+    }
+    var clickX by remember {
+        mutableStateOf(0f)
+    }
+    var clickY by remember {
+        mutableStateOf(0f)
+    }
+    val isDarkTheme by context.dataStore.data
+        .map { preferences ->
+            preferences[IS_DARK_MODEL] ?: false
+        }
+        .collectAsState(initial = false)
     Box(
         contentAlignment = Alignment.Center, modifier = Modifier
             .fillMaxSize()
@@ -54,18 +80,34 @@ fun MaskViewScreen() {
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Button(
-                    enabled = false,
+                    enabled = buttonActive,
                     onClick = {
-
+                        buttonActive=false
+                        context.activeMaskView(
+                            animModel = if (isDarkTheme) MaskAnimModel.SHRINK else MaskAnimModel.EXPEND,
+                            clickX = clickX,
+                            clickY = clickY,
+                            animTime = 700,
+                            maskComplete = {
+                                scope.launch {
+                                    context.dataStore.edit {
+                                        it[IS_DARK_MODEL] = !isDarkTheme
+                                    }
+                                }
+                            },
+                            maskAnimFinish = {
+                                buttonActive=true
+                            },
+                        )
                     }
                 ) {
-                    val tipContent = if (isDark) "ToLightTheme" else "ToDarkTheme"
+                    val tipContent = if (isDarkTheme) "ToLightTheme" else "ToDarkTheme"
                     Text(
                         text = tipContent,
                         modifier = Modifier
                             .onGloballyPositioned { coordinates ->
-                                coordinates.boundsInRoot().center.x
-                                coordinates.boundsInRoot().center.y
+                                clickX = coordinates.boundsInWindow().center.x
+                                clickY = coordinates.boundsInWindow().center.y
                             },
                     )
                 }
@@ -92,7 +134,11 @@ fun MaskViewScreen() {
                                 fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold
                             )
-                            Icon(imageVector = Icons.Filled.Favorite, tint = MaterialTheme.colorScheme.error, contentDescription = "Favorite")
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                tint = MaterialTheme.colorScheme.error,
+                                contentDescription = "Favorite"
+                            )
                         }
                     }
                 }

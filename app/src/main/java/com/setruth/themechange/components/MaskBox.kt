@@ -33,7 +33,20 @@ import kotlin.math.roundToInt
  * 动画模式，点击的x坐标，点击的y坐标
  */
 typealias MaskAnimActive = (MaskAnimModel, Float, Float) -> Unit
-
+private inline fun Animator.valueAnimatorListener(
+    crossinline onStart: (p0: Animator)->Unit = {},
+    crossinline onEnd: (p0: Animator)->Unit = {},
+    crossinline onCancel: (p0: Animator)->Unit = {},
+    crossinline onRepeat: (p0: Animator)->Unit = {},
+) {
+    val animationListener = object : Animator.AnimatorListener {
+        override fun onAnimationStart(p0: Animator) = onStart(p0)
+        override fun onAnimationEnd(p0: Animator) = onEnd(p0)
+        override fun onAnimationCancel(p0: Animator) = onCancel(p0)
+        override fun onAnimationRepeat(p0: Animator) = onRepeat(p0)
+    }
+    addListener(animationListener)
+}
 @SuppressLint("Recycle")
 @Composable
 fun MaskBox(
@@ -44,6 +57,9 @@ fun MaskBox(
 ) {
     var maskAnimModel by remember {
         mutableStateOf(MaskAnimModel.EXPEND)
+    }
+    val paint by remember {
+        mutableStateOf(Paint(Paint.ANTI_ALIAS_FLAG))
     }
     var clickX by remember { mutableStateOf(0f) }
     var clickY by remember { mutableStateOf(0f) }
@@ -58,25 +74,6 @@ fun MaskBox(
         clickX = x
         clickY = y
         val bitmapBound = viewBounds ?: return@clickEvent
-        val animationListener = object : Animator.AnimatorListener {
-            override fun onAnimationStart(p0: Animator) {
-
-            }
-
-            override fun onAnimationEnd(p0: Animator) {
-                viewScreenshot=null
-                animFinish()
-            }
-
-            override fun onAnimationCancel(p0: Animator) {
-
-            }
-
-            override fun onAnimationRepeat(p0: Animator) {
-
-            }
-
-        }
         val radiusRange = when (animModel) {
             MaskAnimModel.EXPEND -> Pair(
                 0f,
@@ -109,11 +106,14 @@ fun MaskBox(
                 addUpdateListener { valueAnimator ->
                     maskRadius = valueAnimator.animatedValue as Float
                 }
-                addListener(animationListener)
+                valueAnimatorListener(
+                    onEnd = {
+                        viewScreenshot=null
+                        animFinish()
+                    }
+                )
             }.start()
     }
-
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -128,13 +128,14 @@ fun MaskBox(
                     if (viewScreenshot == null) return@onDrawWithContent
                     with(drawContext.canvas.nativeCanvas) {
                         val layer = saveLayer(null, null)
-                        val paint=Paint(Paint.ANTI_ALIAS_FLAG)
+
                         when (maskAnimModel) {
                             MaskAnimModel.EXPEND -> {
                                 drawBitmap(viewScreenshot!!, 0f, 0f, null)
                                 paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
                                 drawCircle(clickX, clickY, maskRadius, paint)
                             }
+
                             MaskAnimModel.SHRINK -> {
                                 drawCircle(clickX, clickY, maskRadius, paint)
                                 paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
@@ -151,3 +152,4 @@ fun MaskBox(
         content(maskAnimActive)
     }
 }
+

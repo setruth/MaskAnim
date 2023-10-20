@@ -34,6 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import com.setruth.themechange.components.MaskBox
 import com.setruth.themechange.model.RouteConfig
 import com.setruth.themechange.model.DARK_SWITCH_ACTIVE
+import com.setruth.themechange.model.IS_DARK_MODEL
 import com.setruth.themechange.model.MASK_CLICK_X
 import com.setruth.themechange.model.MASK_CLICK_Y
 import com.setruth.themechange.model.MaskAnimModel
@@ -56,9 +57,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val scope = rememberCoroutineScope()
-            var isDarkTheme by remember {
-                mutableStateOf(false)
-            }
+            val isDarkTheme by context.dataStore.data
+                .map { preferences ->
+                    preferences[IS_DARK_MODEL] ?: false
+                }
+                .collectAsState(initial = false)
             val darkSwitchActive by context.dataStore.data
                 .map { preferences ->
                     preferences[DARK_SWITCH_ACTIVE] ?: false
@@ -75,39 +78,44 @@ class MainActivity : ComponentActivity() {
                 }
                 .collectAsState(initial = 0f)
             val maskClickY by context.dataStore.data
-                .catch { Log.e("TAG", "onCreate:${it.stackTrace} ", ) }
                 .map { preferences ->
                     preferences[MASK_CLICK_Y] ?: 0f
                 }
                 .collectAsState(initial = 0f)
             var theme by remember {
-               mutableStateOf(LightColorScheme1)
+                mutableStateOf(LightColorScheme1)
             }
 
 
             //mask use to?
-            var maskAnimWay by remember{
+            var maskAnimWay by remember {
                 mutableStateOf(MaskAnimWay.DARK_SWITCH)
             }
             MaskAnimTheme(isDarkTheme, customTheme = theme) {
                 MaskBox(
                     maskComplete = {
                         when (maskAnimWay) {
-                            MaskAnimWay.DARK_SWITCH ->  isDarkTheme = !isDarkTheme
+                            MaskAnimWay.DARK_SWITCH -> scope.launch {
+                                context.dataStore.edit {
+                                    it[IS_DARK_MODEL]=!isDarkTheme
+                                }
+                            }
                             MaskAnimWay.THEME_SWITCH -> {
-                                theme= if (theme== LightColorScheme1) LightColorScheme2 else LightColorScheme1
+                                theme =
+                                    if (theme == LightColorScheme1) LightColorScheme2 else LightColorScheme1
                             }
                         }
                     },
-                    animTime =800,
-                    animFinish ={
+                    animTime = 800,
+                    animFinish = {
                         when (maskAnimWay) {
-                            MaskAnimWay.DARK_SWITCH ->  scope.launch {
+                            MaskAnimWay.DARK_SWITCH -> scope.launch {
                                 context.dataStore.edit {
                                     it[DARK_SWITCH_ACTIVE] = false
                                 }
                             }
-                            MaskAnimWay.THEME_SWITCH ->scope.launch {
+
+                            MaskAnimWay.THEME_SWITCH -> scope.launch {
                                 context.dataStore.edit {
                                     it[THEME_SWITCH_ACTIVE] = false
                                 }
@@ -117,16 +125,16 @@ class MainActivity : ComponentActivity() {
                 ) { maskActiveEvent ->
                     LaunchedEffect(darkSwitchActive) {
                         if (!darkSwitchActive) return@LaunchedEffect
-                        maskAnimWay=MaskAnimWay.DARK_SWITCH
+                        maskAnimWay = MaskAnimWay.DARK_SWITCH
                         if (isDarkTheme)
                             maskActiveEvent(MaskAnimModel.SHRINK, maskClickX, maskClickY)
                         else
                             maskActiveEvent(MaskAnimModel.EXPEND, maskClickX, maskClickY)
                     }
-                    LaunchedEffect(themeSwitchActive){
+                    LaunchedEffect(themeSwitchActive) {
                         if (!themeSwitchActive) return@LaunchedEffect
-                        Log.e("TAG", "onCreate:主题切换 ", )
-                        maskAnimWay=MaskAnimWay.THEME_SWITCH
+                        Log.e("TAG", "onCreate:主题切换 ")
+                        maskAnimWay = MaskAnimWay.THEME_SWITCH
                         maskActiveEvent(MaskAnimModel.EXPEND, maskClickX, maskClickY)
                     }
                     MainView()
@@ -200,7 +208,8 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         launchSingleTop = true
         restoreState = true
     }
-enum class MaskAnimWay{
+
+enum class MaskAnimWay {
     DARK_SWITCH,
     THEME_SWITCH
 }
