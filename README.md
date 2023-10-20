@@ -28,9 +28,15 @@
 
 ## 兼容开发模式
 
+### 说明
+
+> 实现后发现只需要一个文件内容即可，所以没做远程仓库上传，需要使用的可以在对应平台找源文件索引地址然后下载下来按照对应的使用方式或者参考使用文件地址进行使用即可
+
 > 注：动画的两个类型单独放在了constant文件中，MaskAnimModel
 
 ### Compose
+
+#### 文件地址
 
 > [组件源文件地址索引](https://github.com/setruth/MaskAnim/blob/master/app/src/main/java/com/setruth/themechange/components/MaskBox.kt)
 >
@@ -54,11 +60,38 @@ MaskBox(
 }
 ```
 
-#### 效果图
 
-<img src="./img/compose.gif" alt="效果图" style="zoom:25%;" />
 
 ### 原生XML
 
->正在迁移
+#### 文件地址
 
+[组件源文件地址索引](https://github.com/setruth/MaskAnim/blob/master/app/src/main/java/com/setruth/themechange/components/MaskView.kt)
+
+[使用文件地址索引](https://github.com/setruth/MaskAnim/blob/master/app/src/main/java/com/setruth/themechange/ui/screen/MaskViewScreen.kt)
+
+#### 使用方式
+
+````kotlin
+//xml是通过自定义View实现的，原理就是获取根布局来添加自定义view，自定义view用于动画遮罩和隐藏，所以不用局限在最外层
+//直接使用上下文调用activeMaskView来激活自定义View的创建和添加
+context.activeMaskView(
+    animModel = if (isDarkTheme) MaskAnimModel.SHRINK else MaskAnimModel.EXPEND,//传入的动画类型 
+    clickX = clickX,//动画扩展收缩的圆形的x坐标，可以认为是点击坐标
+    clickY = clickY,//动画扩展收缩的圆形的y坐标，可以认为是点击坐标
+    animTime = 700,//动画时间，单位是毫秒
+    maskComplete = {//遮罩创建完成回调，也就是截图创建绘制完毕准备执行动画之前的回调
+        //....
+    },
+    maskAnimFinish = {//动画结束回调
+       //...
+    },
+)
+````
+
+
+
+
+### 效果图
+
+<img src="./img/compose.gif" alt="效果图" style="zoom:25%;" />
