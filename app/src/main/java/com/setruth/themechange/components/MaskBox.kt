@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalView
+import androidx.core.animation.addListener
 import androidx.core.graphics.applyCanvas
 import com.setruth.themechange.model.MaskAnimModel
 import kotlin.math.hypot
@@ -106,12 +107,10 @@ fun MaskBox(
                 addUpdateListener { valueAnimator ->
                     maskRadius = valueAnimator.animatedValue as Float
                 }
-                valueAnimatorListener(
-                    onEnd = {
-                        viewScreenshot=null
-                        animFinish()
-                    }
-                )
+                addListener (onEnd = {
+                    viewScreenshot=null
+                    animFinish()
+                })
             }.start()
     }
     Box(

@@ -14,6 +14,7 @@ import android.graphics.PorterDuffXfermode
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.animation.addListener
 import com.setruth.themechange.model.MaskAnimModel
 import kotlin.math.hypot
 
@@ -89,27 +90,14 @@ private class MaskView(
                 maskRadius = valueAnimator.animatedValue as Float
                 invalidate()
             }
-            valueAnimatorListener(onEnd = {
-                animFinish()
+            addListener (onEnd = {
+                    animFinish()
             })
         }.start()
     }
 }
 
-private inline fun Animator.valueAnimatorListener(
-    crossinline onStart: (p0: Animator)->Unit = {},
-    crossinline onEnd: (p0: Animator)->Unit = {},
-    crossinline onCancel: (p0: Animator)->Unit = {},
-    crossinline onRepeat: (p0: Animator)->Unit = {},
-) {
-    val animationListener = object : Animator.AnimatorListener {
-        override fun onAnimationStart(p0: Animator) = onStart(p0)
-        override fun onAnimationEnd(p0: Animator) = onEnd(p0)
-        override fun onAnimationCancel(p0: Animator) = onCancel(p0)
-        override fun onAnimationRepeat(p0: Animator) = onRepeat(p0)
-    }
-    addListener(animationListener)
-}
+
 
 private fun View.getScreenshot(): Bitmap {
     val bitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
