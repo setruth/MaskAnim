@@ -112,14 +112,12 @@ fun MaskBox(
                     if (viewScreenshot == null) return@onDrawWithContent
                     with(drawContext.canvas.nativeCanvas) {
                         val layer = saveLayer(null, null)
-
                         when (maskAnimModel) {
                             MaskAnimModel.EXPEND -> {
                                 drawBitmap(viewScreenshot!!, 0f, 0f, null)
                                 paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
                                 drawCircle(clickX, clickY, maskRadius, paint)
                             }
-
                             MaskAnimModel.SHRINK -> {
                                 drawCircle(clickX, clickY, maskRadius, paint)
                                 paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
