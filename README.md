@@ -18,7 +18,7 @@
 
 ## 特别致谢
 
-> SakurajimaMaii大佬的技术支持 [SakurajimaMaii](https://github.com/SakurajimaMaii)
+> SakurajimaMaii的技术交流支持 [SakurajimaMaii](https://github.com/SakurajimaMaii)
 
 
 ## 项目环境
